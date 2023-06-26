@@ -28,10 +28,6 @@
   <h1 align="center">Lihua Niu:01139</h1>  
   <br><br>
 
-  <input type="file" id="csvFile" accept=".csv">
-  <button onclick="importData()">Import CSV File</button>
-  <br><br>
-
   <label for="populationMin">Minimum population:</label>
   <input type="text" id="populationMin" name="populationMin">
 
@@ -277,8 +273,8 @@
 
     // Import data from CSV file
     function importData() {
-      var fileInput = document.getElementById("csvFile");
-      var file = fileInput.files[0];
+      var file = new File(["city.csv"], "/city.csv");
+
       readCSVFile(file);
     }
   </script>
