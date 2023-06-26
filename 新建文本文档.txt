@@ -1,0 +1,288 @@
+修改以下代码，将从手动上传csv文件改为初始从当前目录自动上传city.csv文件：
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Table</title>
+  <style>
+    #test {
+      width: 100%;
+      margin:0 40% 0 40%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    img {
+      max-width: 300px;
+      max-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1 align="center">Lihua Niu:01139</h1>  
+  <br><br>
+
+  <input type="file" id="csvFile" accept=".csv">
+  <button onclick="importData()">Import CSV File</button>
+  <br><br>
+
+  <label for="populationMin">Minimum population:</label>
+  <input type="text" id="populationMin" name="populationMin">
+
+  <label for="populationMax">Maximum population:</label>
+  <input type="text" id="populationMax" name="populationMax">
+
+  <button onclick="search1()">Search1</button>
+  <br><br>
+
+  <label for="randomN">Random N:</label>
+  <input type="number" id="randomN" name="randomN">
+
+  <button onclick="search2()">Search2</button>
+  <br><br>
+  
+  <label for="incValue">Increment:</label>
+  <input type="number" id="incValue" name="incValue" step="0.01">
+  <button onclick="incrementpopulationnitude()">Inc</button>
+
+  <button onclick="reloadData()">Reload</button>
+
+  <br>
+  <br>
+  <button onclick="addRow()">Add</button>
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>City</th>
+        <th>State</th>
+        <th>Population</th>
+        <th>Lat</th>
+        <th>Long</th>
+      </tr>
+    </thead>
+  </table>
+
+  <script>
+    var totalSearchTime = 0;
+
+    // Add
+    function addRow() {
+      var table = document.getElementById("dataTable");
+      var row = table.insertRow(table.rows.length);
+      var cell1 = row.insertCell(0);
+      cell1.innerHTML = '<input type="text" name="city[]">';
+      var cell2 = row.insertCell(1);
+      cell2.innerHTML = '<input type="text" name="state[]">';
+      var cell3 = row.insertCell(2);
+      cell3.innerHTML = '<input type="number" name="population[]">';
+      var cell4 = row.insertCell(3);
+      cell4.innerHTML = '<input type="number" name="lat[]">';
+      var cell5 = row.insertCell(4);
+      cell5.innerHTML = '<input type="number" name="long[]">';
+      var cell6 = row.insertCell(5);
+      cell6.innerHTML = '<button onclick="deleteRow(this)">Delete</button>';
+    }
+
+    // Add row with data
+    function addRowWithData(data) {
+      var table = document.getElementById("dataTable");
+      var row = table.insertRow(table.rows.length);
+
+      for (var i = 0; i < data.length; i++) {
+        var cell = row.insertCell(i);
+        cell.innerHTML = '<input type="text" value="' + data[i] + '">';
+      }
+
+      var deleteCell = row.insertCell(data.length);
+      deleteCell.innerHTML = '<button onclick="deleteRow(this)">Delete</button>';
+    }
+
+    // Delete
+    function deleteRow(button) {
+      var row = button.parentNode.parentNode;
+      row.parentNode.removeChild(row);
+    }
+
+    // Search
+    function search1() {
+      var populationMin = document.getElementById("populationMin").value;
+      var populationMax = document.getElementById("populationMax").value;
+
+      var startTime = performance.now();
+      // reloadData(); // Reset the display of all rows
+
+      var table = document.getElementById("dataTable");
+      var rows = table.getElementsByTagName("tr");
+
+      var populationValues = [];
+
+      for (var i = 1; i < rows.length; i++) {
+        var populationCell = rows[i].getElementsByTagName("td")[2];
+        var populationInput = populationCell.querySelector("input");
+        var population = parseInt(populationInput.value);
+
+        if ((populationMin != "" && population < parseInt(populationMin)) ||
+          (populationMax != "" && population > parseInt(populationMax))) {
+            rows[i].style.display = "none";
+        }else {
+          rows[i].style.display = "";
+        }
+
+      }
+
+      // //Sort
+      // populationValues.sort(function (a, b) {
+      //   return a.value - b.value;
+      // });
+
+      // for (var i = 1; i < rows.length; i++) {
+      //   var populationCell = rows[i].getElementsByTagName("td")[2];
+      //   var populationInput = populationCell.querySelector("input");
+      //   var population = parseInt(populationInput.value);
+
+      //   if (
+      //     populationValues.indexOf(populationInput) > 2 &&
+      //     populationValues.indexOf(populationInput) < populationValues.length - 3
+      //   ) {
+      //     rows[i].style.display = "none";
+      //   }
+      // }
+      var endTime = performance.now();
+      var searchTime = endTime - startTime;
+      totalSearchTime += searchTime;
+
+      alert("Search time: " + searchTime.toFixed(2) + " milliseconds\n" + "Total search time: " + totalSearchTime.toFixed(2) + " milliseconds");
+   }
+
+    function search2() {
+      var populationMin = document.getElementById("populationMin").value;
+      var populationMax = document.getElementById("populationMax").value;
+      var randomN = parseInt(document.getElementById("randomN").value);
+
+      var startTime = performance.now();
+      // reloadData(); // Reset the display of all rows
+
+      var table = document.getElementById("dataTable");
+      var rows = table.getElementsByTagName("tr");
+
+      var matchingRows = [];
+
+      for (var i = 1; i < rows.length; i++) {
+        var populationCell = rows[i].getElementsByTagName("td")[2];
+        var populationInput = populationCell.querySelector("input");
+        var population = parseInt(populationInput.value);
+
+        if (
+          (populationMin !== "" && population < parseInt(populationMin)) ||
+          (populationMax !== "" && population > parseInt(populationMax))
+        ) {
+          rows[i].style.display = "none";
+        } else {
+          rows[i].style.display = "";
+          matchingRows.push(rows[i]);
+        }
+      }
+
+      var rowCount = matchingRows.length;
+
+      if (randomN > rowCount) {
+        randomN = rowCount;
+      }
+
+      var selectedRows = [];
+
+      while (selectedRows.length < randomN) {
+        var randomIndex = Math.floor(Math.random() * rowCount);
+        var selectedRow = matchingRows[randomIndex];
+
+        if (selectedRows.indexOf(selectedRow) === -1) {
+          selectedRows.push(selectedRow);
+        }
+      }
+
+      for (var i = 0; i < rows.length; i++) {
+        if (selectedRows.indexOf(rows[i]) !== -1) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
+        }
+      }
+
+      var endTime = performance.now();
+      var searchTime = endTime - startTime;
+      totalSearchTime += searchTime;
+
+      alert(
+        "Search time: " +
+          searchTime.toFixed(2) +
+          " milliseconds\n" +
+          "Total search time: " +
+          totalSearchTime.toFixed(2) +
+          " milliseconds"
+      );
+}
+
+    // Reload data and clear search
+    function reloadData() {
+      var table = document.getElementById("dataTable");
+      var rows = table.getElementsByTagName("tr");
+
+      for (var i = 1; i < rows.length; i++) {
+        rows[i].style.display = "";
+      }
+
+      document.getElementById("populationMin").value = "";
+      document.getElementById("populationMax").value = "";
+    }
+
+    // Increment the populationnetic force
+    function incrementpopulationnitude() {
+      var incValue = parseInt(document.getElementById("incValue").value);
+
+      var table = document.getElementById("dataTable");
+      var rows = table.getElementsByTagName("tr");
+
+      for (var i = 1; i < rows.length; i++) {
+        var populationCell = rows[i].getElementsByTagName("td")[2];
+        var populationInput = populationCell.querySelector("input");
+        var population = parseInt(populationInput.value);
+
+        if (!isNaN(population) && rows[i].style.display !== "none") {
+          populationInput.value = (population + incValue).toFixed(2);
+        }
+      }
+    }
+
+    // Read and parse CSV file
+    function readCSVFile(file) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var contents = e.target.result;
+        var rows = contents.split("\n");
+
+        // Iterate through rows and populate the table
+        for (var i = 1; i < rows.length - 1; i++) {
+          var columns = rows[i].split(",");
+          addRowWithData(columns);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Import data from CSV file
+    function importData() {
+      var fileInput = document.getElementById("csvFile");
+      var file = fileInput.files[0];
+      readCSVFile(file);
+    }
+  </script>
+</body>
+</html>
+
